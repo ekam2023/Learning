@@ -9,4 +9,4 @@ Stated directly: "I am very experienced with windows server but not Linux. I nee
 ## Implications
 
 - Teach by translation: Windows concept first, Linux equivalent second.
-- Do not assume a distro, a job task, or a certification target. Those are still unknown, so `MISSION.md` stays unwritten.
+- Status: the "mission stays unwritten" implication is superseded by LR-0002. The Windows Server background in this record still stands.

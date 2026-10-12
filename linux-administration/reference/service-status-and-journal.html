@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Service status and journal</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <p class="kicker">Reference · from <a href="../lessons/0001-check-a-service-and-its-journal.html">lesson 0001</a></p>
+    <h1>Service status and journal</h1>
+    <p>Windows Server map for one application. Replace <code>name</code> with the unit name.</p>
+
+    <h2>Commands</h2>
+    <table>
+      <thead>
+        <tr><th>Windows</th><th>Linux</th><th>What you learn</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Services, Status column</td>
+          <td><code>systemctl status name</code></td>
+          <td>Active line, plus about 10 recent journal lines.</td>
+        </tr>
+        <tr>
+          <td>Event Viewer for that app</td>
+          <td><code>journalctl -u name -n 50 --no-pager</code></td>
+          <td>Recent journal entries for that unit only.</td>
+        </tr>
+        <tr>
+          <td>Startup type Automatic</td>
+          <td>Loaded line says <code>enabled</code></td>
+          <td>Boot will try to start it. This is not “running.”</td>
+        </tr>
+        <tr>
+          <td>Status Running</td>
+          <td>Active line says <code>active</code></td>
+          <td>This run is up.</td>
+        </tr>
+        <tr>
+          <td>Status Stopped</td>
+          <td>Active line says <code>inactive</code></td>
+          <td>This run is not up.</td>
+        </tr>
+        <tr>
+          <td>Stopped after a fault</td>
+          <td>Active line says <code>failed</code></td>
+          <td>Crash, error exit, or timeout. Read the journal for the cause.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Access</h2>
+    <p>The system journal is readable by root and by members of <code>systemd-journal</code>, <code>adm</code>, and <code>wheel</code>. Source: <a href="https://man7.org/linux/man-pages/man1/journalctl.1.html">journalctl(1)</a>.</p>
+    <p class="note">Earlier boots are not in <code>systemctl status</code>. Use <code>journalctl -u name</code>. Source: <a href="https://man7.org/linux/man-pages/man1/systemctl.1.html">systemctl(1)</a>.</p>
+  </main>
+</body>
+</html>
