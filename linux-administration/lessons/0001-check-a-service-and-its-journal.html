@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Check a service and its journal</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main>
+    <p class="kicker">Lesson 0001 · RHCSA · Operate running systems</p>
+    <h1>Check a service and its journal</h1>
+    <p>On the new job, the first question in an incident is the one you already ask on Windows Server: is this application running, and what did it just log? On Linux that is one service check, then the journal.</p>
+    <p>This is the first task in the administrator course. The <a href="https://www.redhat.com/en/services/training/ex200-red-hat-certified-system-administrator-rhcsa-exam">EX200 study points</a> call it “start, stop, and check the status of network services” and “locate and interpret system log files and journals.”</p>
+
+    <h2>The Windows picture</h2>
+    <p>In Services, the Status column says Running or Stopped. Startup type is a different column: Automatic is not the same fact as Running. Event Viewer then shows the recent lines for that application. Linux splits those the same way.</p>
+
+    <h2>Read the status</h2>
+    <p>Type this at a shell. <code>payments-api</code> stands in for whatever the service is named on the host.</p>
+    <pre><code>systemctl status payments-api</code></pre>
+    <p><a href="https://man7.org/linux/man-pages/man1/systemctl.1.html">systemctl(1)</a> says <code>status</code> prints human-readable runtime status, then the most recent journal lines. The default excerpt is 10 lines. Two lines matter on a first look:</p>
+    <ul>
+      <li><strong>Loaded.</strong> <code>enabled</code> means the service is included in boot, the way Startup type Automatic does. <code>disabled</code> means it will not start at boot. You can still start it by hand.</li>
+      <li><strong>Active.</strong> Usually <code>active</code> or <code>inactive</code>. <code>failed</code> means this run failed: a crash, an error exit, or a timeout. The cause is written in the journal underneath.</li>
+    </ul>
+    <pre class="sample"><code>● payments-api.service - Payments API
+   Loaded: loaded (/usr/lib/systemd/system/payments-api.service; enabled; preset: enabled)
+   Active: <span class="failed">failed</span>
+ Main PID: 2144
+
+Oct 12 09:14:02 app01 payments-api[2144]: Error: cannot connect to database</code></pre>
+    <p>That service is set to start at boot, and this run failed. The log line says why. <code>status</code> does not show earlier boots. The manual says earlier invocations come from <code>journalctl --unit=</code>.</p>
+
+    <h2>Read the rest of the log</h2>
+    <p>When the 10-line excerpt is not enough, ask the journal for that one unit:</p>
+    <pre><code>journalctl -u payments-api -n 50 --no-pager</code></pre>
+    <p><a href="https://man7.org/linux/man-pages/man1/journalctl.1.html">journalctl(1)</a> says <code>-u</code> shows messages for that unit, and <code>-n</code> limits how many recent events you see. <code>--no-pager</code> prints and returns, instead of opening <code>less</code>. Only root, and members of <code>systemd-journal</code>, <code>adm</code>, or <code>wheel</code>, can read the system journal. If the command says you are not allowed, that is access, not a wrong service name.</p>
+
+    <h2>Practice</h2>
+    <p>Answer from the sample above. Each choice is the same length. Feedback is immediate.</p>
+    <div data-quiz>
+      <fieldset data-answer="1" data-why="systemctl status prints the Active line and a short journal excerpt. --utc only changes timestamps. tail follows a syslog file, not one unit.">
+        <legend>The payments API may be down. Which command shows whether it is running?</legend>
+        <label><input type="radio" name="q1" value="0"> journalctl --utc payments-api</label>
+        <label><input type="radio" name="q1" value="1"> systemctl status payments-api</label>
+        <label><input type="radio" name="q1" value="2"> tail --follow /var/log/syslog</label>
+      </fieldset>
+      <fieldset data-answer="2" data-why="-u selects that unit. -b selects a boot. -k selects kernel messages. Status already showed the short excerpt.">
+        <legend>Status showed too few lines. Which command shows that service's journal?</legend>
+        <label><input type="radio" name="q2" value="0"> journalctl -b payments-api</label>
+        <label><input type="radio" name="q2" value="1"> journalctl -k payments-api</label>
+        <label><input type="radio" name="q2" value="2"> journalctl -u payments-api</label>
+      </fieldset>
+      <fieldset data-answer="0" data-why="Loaded enabled means boot will try to start it. Active failed means this run failed: a crash, an error exit, or a timeout. Those are different facts, as Services Status and Startup type are different facts.">
+        <legend>Loaded says enabled. Active says failed. Which reading is right?</legend>
+        <label><input type="radio" name="q3" value="0"> Boot-enabled, but the service has failed</label>
+        <label><input type="radio" name="q3" value="1"> Boot-enabled, and the service is running</label>
+        <label><input type="radio" name="q3" value="2"> Boot-disabled, so the service is stopped</label>
+      </fieldset>
+    </div>
+
+    <h2>Primary source</h2>
+    <p>Read the <code>status</code> section of <a href="https://man7.org/linux/man-pages/man1/systemctl.1.html">systemctl(1)</a>, then the <code>-u</code> and <code>-n</code> sections of <a href="https://man7.org/linux/man-pages/man1/journalctl.1.html">journalctl(1)</a>. Red Hat's procedure for the same commands is <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/using_systemd_unit_files_to_customize_and_optimize_your_system/managing-system-services-with-systemctl">Managing system services with systemctl</a>.</p>
+    <p>The compressed version of this lesson is the <a href="../reference/service-status-and-journal.html">service status and journal sheet</a>. Ask a follow-up if the Active line, the group permission, or the service name on your real host is unclear. The teacher for this folder is the agent, and the question can be as small as one word in the output.</p>
+  </main>
+  <script src="../assets/quiz.js"></script>
+</body>
+</html>
